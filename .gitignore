@@ -30,3 +30,11 @@
 *.exe
 *.out
 *.app
+
+# IDE
+.vscode
+
+# Misc files
+databank/*
+!databank/test.txt
+output.txt
