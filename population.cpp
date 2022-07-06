@@ -200,8 +200,8 @@ void egal::population::enhance_population
 		unsigned int weakest_population_index = distance(fitness_values.begin(), min_element(fitness_values.begin(), fitness_values.end()));
 		if (fitness_values[weakest_population_index] < new_population_element_fitness_value)
 		{
-			set_single_fitness_value(weakest_population_index, new_population_element_fitness_value);
-			set_single_population_element(weakest_population_index, new_population_element);
+			fitness_values[weakest_population_index] = new_population_element_fitness_value;
+			population_elements[weakest_population_index] = new_population_element;
 		}
 		double current_average_fitness = 0;
 		for (double fitness_value : fitness_values)

@@ -58,16 +58,6 @@ namespace egal
 			double time_limit = 1
 		);
 
-		void set_single_population_element(int index, vector<unsigned int> population_element)
-		{
-			population_elements[index] = population_element;
-		}
-
-		void set_single_fitness_value(int index, double fitness_value)
-		{
-			fitness_values[index] = fitness_value;
-		}
-
 		vector<string> get_task_contents(void)
 		{
 			return task_contents;
