@@ -3,38 +3,35 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <algorithm>
 #include "population.hpp"
 using namespace std;
 
-void debug_output(egal::population population, vector<vector<unsigned char>> coexistence_preferences)
+bool fitness_comparison(pair<vector<unsigned int>, double> &a, pair<vector<unsigned int>, double> &b)
 {
-	cout << "*BEGIN_DEBUG_OUTPUT*\n";
-	vector<vector<unsigned int>> population_elements = population.get_population_elements();
-	for (unsigned int i = 0; i < population_elements.size(); ++i)
+	return a.second < b.second;
+}
+
+void debug_output(egal::population &population, string file_name)
+{
+	ofstream output_file(file_name);
+	output_file << "*BEGIN_DEBUG_OUTPUT*\n";
+	pair<unsigned int, vector<pair<vector<unsigned int>, double>>> p1 = population.get_population();
+	output_file << p1.first << "\n";
+	double fitness_sum = 0;
+	sort(p1.second.begin(), p1.second.end(), fitness_comparison);
+	for (pair<vector<unsigned int>, double> p2 : p1.second)
 	{
-		unsigned int difficulty_sum = 0;
-		for (unsigned int task_index : population_elements[i])
+		for (unsigned int i : p2.first)
 		{
-			cout << task_index << ",";
-			difficulty_sum += population.get_task_difficulty_values()[task_index];
-			for (unsigned int j = 0; j < population_elements[i].size() - 1; ++j)
-			{
-				for (unsigned int k = j + 1; k < population_elements[i].size(); ++k)
-				{
-					if (coexistence_preferences[population_elements[i][k]][population_elements[i][j]] == 0)
-					{
-						cout << "(!" << population_elements[i][k] << "-" << population_elements[i][j] << "!)";
-					}
-				}
-			}
+			output_file << i << ",";
 		}
-		if (difficulty_sum != population.get_exercise_difficulty_goal())
-		{
-			cout << "difficulty error!\n";
-		}
-		cout << population.get_fitness_values()[i] << "\n";
+		fitness_sum += p2.second;
+		output_file << " " << p2.second << "\n";
 	}
-	cout << "*END_DEBUG_OUTPUT*\n";
+	output_file << "Average fitness value: " << fitness_sum / p1.second.size() << "\n";
+	output_file << "*END_DEBUG_OUTPUT*\n";
+	output_file.close();
 }
 
 int main(void)
@@ -58,7 +55,6 @@ int main(void)
 	string token;
 	vector<string> task_contents;
 	vector<unsigned char> task_difficulty_values;
-	unsigned int exercise_difficulty_goal;
 	vector<vector<unsigned char>> coexistence_preferences;
 	while (getline(data_bank, line))
 	{
@@ -84,30 +80,23 @@ int main(void)
 	//cout << "Please specify the desired population size:\n";
 	//cin >> population_size;
 
-	bool calculate_difficulty = false;
-	//cout << "Please specify wheter you would like to use difficulty values (y/n):\n";
-	//cin >> ;
-
-	if (calculate_difficulty)
-	{
-
-	}
-	else
-	{
-		exercise_difficulty_goal = exercise_length;
-		task_difficulty_values = vector<unsigned char>(task_contents.size(), 1);
-	}
-
-	egal::population population(task_contents, task_difficulty_values, exercise_difficulty_goal, coexistence_preferences, exercise_length, population_size);
+	egal::population population(task_contents, task_difficulty_values, coexistence_preferences, exercise_length, population_size);
 	
-	debug_output(population, coexistence_preferences);
+	population.generate_population_options(2, 3, 1);
+
+	for (unsigned int i : population.get_difficulty_options())
+	{
+		cout << i << "\n";
+	}
+	unsigned int chosen_difficulty;
+	cin >> chosen_difficulty;
+	population.finalize_initial_population(chosen_difficulty);
 	
-	population.enhance_population();
+	debug_output(population, "initial.txt");
+	
+	population.enhance_population(50, 0.0000000001, 10, 0.5, 0.2, 1);
 
-	debug_output(population, coexistence_preferences);
+	debug_output(population, "enhanced.txt");
 
-	ofstream output_file("output.txt");
-
-	output_file.close();
 	return 0;
 }

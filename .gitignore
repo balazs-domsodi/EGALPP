@@ -37,4 +37,5 @@
 # Misc files
 databank/*
 !databank/test.txt
-output.txt
+initial.txt
+enhanced.txt
