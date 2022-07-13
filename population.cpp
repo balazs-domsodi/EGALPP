@@ -149,15 +149,18 @@ void egal::population::generate_population_options
 		}
 		if (valid_difficulty_options.size() >= valid_difficulties_treshold)
 		{
-			for (it = populations.begin(); it != populations.end(); ++it)
+			for (it = populations.begin(); it != populations.end();)
 			{
 				if (find(valid_difficulty_options.begin(), valid_difficulty_options.end(), it->first) != valid_difficulty_options.end())
 				{
 					it->second.resize(population_size);
+					++it;
 				}
 				else
 				{
-					populations.erase(it);
+					map<unsigned int, vector<pair<vector<unsigned int>, double>>>::iterator tmp_it = ++it;
+					populations.erase(--it);
+					it = tmp_it;
 				}
 			}
 			break;
@@ -233,11 +236,17 @@ double egal::population::calculate_single_fitness_value
 
 void egal::population::finalize_initial_population(unsigned int difficulty_option)
 {
-	for(pair<unsigned int, vector<pair<vector<unsigned int>, double>>> population : populations)
+	for (map<unsigned int, vector<pair<vector<unsigned int>, double>>>::iterator it = populations.begin(); it != populations.end();)
 	{
-		if (population.first != difficulty_option)
+		if (it->first != difficulty_option)
 		{
-			populations.erase(population.first);
+			map<unsigned int, vector<pair<vector<unsigned int>, double>>>::iterator tmp_it = ++it;
+			populations.erase(--it);
+			it = tmp_it;
+		}
+		else
+		{
+			++it;
 		}
 	}
 	for (vector<pair<vector<unsigned int>, double>>::iterator it = populations.begin()->second.begin(); it != populations.begin()->second.end(); ++it)

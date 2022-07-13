@@ -72,6 +72,7 @@ int main(void)
 		}
 		coexistence_preferences.push_back(coexistence_preferences_vector);
 	}
+	data_bank.close();
 
 	unsigned int exercise_length = 6;
 	//cout << "Please specify the desired exercise length:\n";
