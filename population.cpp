@@ -158,9 +158,8 @@ void egal::population::generate_population_options
 				}
 				else
 				{
-					map<unsigned int, vector<pair<vector<unsigned int>, double>>>::iterator tmp_it = ++it;
-					populations.erase(--it);
-					it = tmp_it;
+					map<unsigned int, vector<pair<vector<unsigned int>, double>>>::iterator tmp_it = it++;
+					populations.erase(tmp_it);
 				}
 			}
 			break;
@@ -236,13 +235,16 @@ double egal::population::calculate_single_fitness_value
 
 void egal::population::finalize_initial_population(unsigned int difficulty_option)
 {
+	if (populations.find(difficulty_option) == populations.end())
+	{
+		throw invalid_argument("finalize_initial_population::difficulty_option not in map");
+	}
 	for (map<unsigned int, vector<pair<vector<unsigned int>, double>>>::iterator it = populations.begin(); it != populations.end();)
 	{
 		if (it->first != difficulty_option)
 		{
-			map<unsigned int, vector<pair<vector<unsigned int>, double>>>::iterator tmp_it = ++it;
-			populations.erase(--it);
-			it = tmp_it;
+			map<unsigned int, vector<pair<vector<unsigned int>, double>>>::iterator tmp_it = it++;
+			populations.erase(tmp_it);
 		}
 		else
 		{
