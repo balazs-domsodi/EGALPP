@@ -225,7 +225,7 @@ double egal::population::calculate_single_fitness_value
 			(
 				examined_population_element.begin(), examined_population_element.end(),
 				it->first.begin(), it->first.end(),
-				vector<unsigned int>::iterator(differences.begin())
+				differences.begin()
 			)
 			- differences.begin(); // (/(population_size/20)?
 		}
