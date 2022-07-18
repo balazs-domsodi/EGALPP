@@ -7,19 +7,21 @@
 #include "population.hpp"
 using namespace std;
 
-bool fitness_comparison(pair<vector<unsigned int>, double> &a, pair<vector<unsigned int>, double> &b)
-{
-	return a.second < b.second;
-}
-
-void debug_output(egal::population &population, string file_name)
+void debug_output(const egal::population &population, string file_name)
 {
 	ofstream output_file(file_name);
 	output_file << "*BEGIN_DEBUG_OUTPUT*\n";
 	pair<unsigned int, vector<pair<vector<unsigned int>, double>>> p1 = population.get_population();
 	output_file << p1.first << "\n";
 	double fitness_sum = 0;
-	sort(p1.second.begin(), p1.second.end(), fitness_comparison);
+	sort
+	(
+		p1.second.begin(), p1.second.end(),
+		[](const pair<vector<unsigned int>, double> &a, const pair<vector<unsigned int>, double> &b) -> bool
+		{ 
+			return a.second < b.second;
+		}
+	);
 	for (pair<vector<unsigned int>, double> p2 : p1.second)
 	{
 		for (unsigned int i : p2.first)

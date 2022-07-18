@@ -15,7 +15,7 @@ namespace egal
 		vector<vector<unsigned char>> coexistence_preferences;
 		unsigned int exercise_length;
 		unsigned int population_size;
-		map<unsigned int, vector<pair<vector<unsigned int>, double>>> populations;
+		map<unsigned int, vector<pair<vector<unsigned int>, double>>> population_options;
 
 	public:
 		population
@@ -34,13 +34,12 @@ namespace egal
 		{}
 
 	private:
-		vector<unsigned int> create_single_population_element(bool check_difficulty);
+		vector<unsigned int> create_single_population_element(bool check_difficulty) const;
 		double calculate_single_fitness_value
 		(
-			vector<unsigned int> &examined_population_element,
-			vector<pair<vector<unsigned int>, double>> &population,
-			vector<pair<vector<unsigned int>, double>>::iterator excluded_population_element
-		);
+			const vector<unsigned int> &examined_population_element,
+			vector<pair<vector<unsigned int>, double>>::const_iterator excluded_population_element
+		) const;
 
 	public:
 		void generate_population_options
@@ -49,7 +48,7 @@ namespace egal
 			unsigned char valid_difficulties_treshold,
 			double constraint_time_limit
 		);
-		vector<unsigned int> get_difficulty_options(void);
+		vector<unsigned int> get_difficulty_options(void) const;
 		void finalize_initial_population(unsigned int difficulty_option);
 		void enhance_population
 		(
@@ -60,9 +59,9 @@ namespace egal
 			double PAR,
 			double PAR_time_limit
 		);
-		pair<unsigned int, vector<pair<vector<unsigned int>, double>>> get_population(void)
+		pair<unsigned int, vector<pair<vector<unsigned int>, double>>> get_population(void) const
 		{
-			return *(populations.begin());
+			return *(population_options.cbegin());
 		}
 	};
 }

@@ -4,7 +4,7 @@
 #include "population.hpp"
 using namespace std;
 
-vector<unsigned int> egal::population::create_single_population_element(bool check_difficulty)
+vector<unsigned int> egal::population::create_single_population_element(bool check_difficulty) const
 {
 	vector<unsigned int> population_element;
 	while (true)
@@ -19,7 +19,7 @@ vector<unsigned int> egal::population::create_single_population_element(bool che
 			{
 				task_index = rand() % (task_contents.size() - 1);
 			}
-			while (find(population_element.begin(), population_element.end(), task_index) != population_element.end());
+			while (find(population_element.cbegin(), population_element.cend(), task_index) != population_element.cend());
 			bool valid_task_index = true;
 			for (unsigned int i = 0; i <= population_element.size() - 1; ++i)
 			{
@@ -66,7 +66,7 @@ vector<unsigned int> egal::population::create_single_population_element(bool che
 			{
 				difficulty_sum += task_difficulty_values[i];
 			}
-			if (difficulty_sum != populations.begin()->first)
+			if (difficulty_sum != population_options.cbegin()->first)
 			{
 				continue;
 			}
@@ -93,7 +93,7 @@ void egal::population::generate_population_options
 	{
 		throw invalid_argument("generate_population_options::valid_difficulties_treshold = 0");
 	}
-	populations.clear();
+	population_options.clear();
 	unsigned int difference_goal, minimum_difficulty = 0, maximum_difficulty = 0;
 	if (valid_difficulties_treshold > 1)
 	{
@@ -119,8 +119,8 @@ void egal::population::generate_population_options
 		{
 			difficulty_sum += task_difficulty_values[i];
 		}
-		map<unsigned int, vector<pair<vector<unsigned int>, double>>>::iterator it = populations.find(difficulty_sum);
-		if (it != populations.end())
+		map<unsigned int, vector<pair<vector<unsigned int>, double>>>::iterator it = population_options.find(difficulty_sum);
+		if (it != population_options.end())
 		{
 			if (find(it->second.begin(), it->second.end(), p) == it->second.end())
 			{
@@ -129,10 +129,10 @@ void egal::population::generate_population_options
 		}
 		else
 		{
-			populations[difficulty_sum] = vector<pair<vector<unsigned int>, double>>(1, p);
+			population_options[difficulty_sum] = vector<pair<vector<unsigned int>, double>>(1, p);
 		}
 		vector<unsigned int> valid_difficulty_options;
-		for (it = populations.begin(); it != populations.end(); ++it)
+		for (it = population_options.begin(); it != population_options.end(); ++it)
 		{
 			if (it->second.size() >= occurrency_treshold)
 			{
@@ -140,7 +140,7 @@ void egal::population::generate_population_options
 				break;
 			}
 		}
-		for (++it; it != populations.end(); ++it)
+		for (++it; it != population_options.end(); ++it)
 		{
 			if (it->second.size() >= occurrency_treshold && valid_difficulty_options.back() + difference_goal <= it->first)
 			{
@@ -149,7 +149,7 @@ void egal::population::generate_population_options
 		}
 		if (valid_difficulty_options.size() >= valid_difficulties_treshold)
 		{
-			for (it = populations.begin(); it != populations.end();)
+			for (it = population_options.begin(); it != population_options.end();)
 			{
 				if (find(valid_difficulty_options.begin(), valid_difficulty_options.end(), it->first) != valid_difficulty_options.end())
 				{
@@ -158,8 +158,8 @@ void egal::population::generate_population_options
 				}
 				else
 				{
-					map<unsigned int, vector<pair<vector<unsigned int>, double>>>::iterator tmp_it = it++;
-					populations.erase(tmp_it);
+					map<unsigned int, vector<pair<vector<unsigned int>, double>>>::const_iterator tmp_it = it++;
+					population_options.erase(tmp_it);
 				}
 			}
 			break;
@@ -190,10 +190,10 @@ void egal::population::generate_population_options
 	}
 }
 
-vector<unsigned int> egal::population::get_difficulty_options(void)
+vector<unsigned int> egal::population::get_difficulty_options(void) const
 {
 	vector<unsigned int> difficulty_options;
-	for(pair<unsigned int, vector<pair<vector<unsigned int>, double>>> population : populations)
+	for(pair<unsigned int, vector<pair<vector<unsigned int>, double>>> population : population_options)
 	{
 		difficulty_options.push_back(population.first);
 	}
@@ -202,10 +202,9 @@ vector<unsigned int> egal::population::get_difficulty_options(void)
 
 double egal::population::calculate_single_fitness_value
 (
-	vector<unsigned int> &examined_population_element,
-	vector<pair<vector<unsigned int>, double>> &population,
-	vector<pair<vector<unsigned int>, double>>::iterator excluded_population_element
-)
+	const vector<unsigned int> &examined_population_element,
+	vector<pair<vector<unsigned int>, double>>::const_iterator excluded_population_element
+) const
 {
 	double fitness_value = 0;
 	for (unsigned int i = 0; i < exercise_length - 1; ++i)
@@ -215,7 +214,7 @@ double egal::population::calculate_single_fitness_value
 			fitness_value += coexistence_preferences[examined_population_element[j]][examined_population_element[i]];
 		}
 	}
-	for (vector<pair<vector<unsigned int>, double>>::iterator it = population.begin(); it != population.end(); ++it)
+	for (vector<pair<vector<unsigned int>, double>>::const_iterator it = population_options.cbegin()->second.cbegin(); it != population_options.cbegin()->second.cend(); ++it)
 	{
 		if (it != excluded_population_element)
 		{
@@ -223,11 +222,11 @@ double egal::population::calculate_single_fitness_value
 			fitness_value +=
 			set_difference
 			(
-				examined_population_element.begin(), examined_population_element.end(),
-				it->first.begin(), it->first.end(),
+				examined_population_element.cbegin(), examined_population_element.cend(),
+				it->first.cbegin(), it->first.cend(),
 				differences.begin()
 			)
-			- differences.begin(); // (/(population_size/20)?
+			- differences.cbegin(); // (/(population_size/20)?
 		}
 	}
 	return fitness_value;
@@ -235,25 +234,25 @@ double egal::population::calculate_single_fitness_value
 
 void egal::population::finalize_initial_population(unsigned int difficulty_option)
 {
-	if (populations.find(difficulty_option) == populations.end())
+	if (population_options.find(difficulty_option) == population_options.cend())
 	{
 		throw invalid_argument("finalize_initial_population::difficulty_option not in map");
 	}
-	for (map<unsigned int, vector<pair<vector<unsigned int>, double>>>::iterator it = populations.begin(); it != populations.end();)
+	for (map<unsigned int, vector<pair<vector<unsigned int>, double>>>::const_iterator it = population_options.cbegin(); it != population_options.cend();)
 	{
 		if (it->first != difficulty_option)
 		{
-			map<unsigned int, vector<pair<vector<unsigned int>, double>>>::iterator tmp_it = it++;
-			populations.erase(tmp_it);
+			map<unsigned int, vector<pair<vector<unsigned int>, double>>>::const_iterator tmp_it = it++;
+			population_options.erase(tmp_it);
 		}
 		else
 		{
 			++it;
 		}
 	}
-	for (vector<pair<vector<unsigned int>, double>>::iterator it = populations.begin()->second.begin(); it != populations.begin()->second.end(); ++it)
+	for (vector<pair<vector<unsigned int>, double>>::iterator it = population_options.begin()->second.begin(); it != population_options.begin()->second.end(); ++it)
 	{
-		it->second = calculate_single_fitness_value(it->first, populations.begin()->second, populations.begin()->second.end());
+		it->second = calculate_single_fitness_value(it->first, population_options.cbegin()->second.cend());
 	}
 }
 
@@ -268,7 +267,7 @@ void egal::population::enhance_population
 )
 {
 	double last_average_fitness = 0;
-	for (pair<vector<unsigned int>, double> p : populations.begin()->second)
+	for (pair<vector<unsigned int>, double> p : population_options.cbegin()->second)
 	{
 		last_average_fitness += p.second;
 	}
@@ -281,7 +280,7 @@ void egal::population::enhance_population
 		bool under_PAR_time_limit = true;
 		if (random_value <= HMCR)
 		{
-			new_population_element = populations.begin()->second[rand() % (population_size - 1)].first;
+			new_population_element = population_options.cbegin()->second[rand() % (population_size - 1)].first;
 			if (random_value <= PAR)
 			{
 				time_t sequence_start_time = time(0);
@@ -318,7 +317,7 @@ void egal::population::enhance_population
 					}
 					while 
 					(
-						(find(new_population_element.begin(), new_population_element.end(), random_new_task_index) != new_population_element.end() ||
+						(find(new_population_element.cbegin(), new_population_element.cend(), random_new_task_index) != new_population_element.cend() ||
 						task_difficulty_values[new_population_element[new_population_element_target_index]] != task_difficulty_values[random_new_task_index] ||
 						!coexistence_validity) &&
 						under_PAR_time_limit
@@ -337,43 +336,43 @@ void egal::population::enhance_population
 		{
 			new_population_element = create_single_population_element(true);
 		}
-		unsigned int weakest_fitness_value = populations.begin()->second[0].second;
+		unsigned int weakest_fitness_value = population_options.cbegin()->second[0].second;
 		unsigned int weakest_i;
 		for (unsigned int i = 0; i < population_size; ++i)
 		{
-			if (weakest_fitness_value > populations.begin()->second[i].second)
+			if (weakest_fitness_value > population_options.cbegin()->second[i].second)
 			{
-				weakest_fitness_value = populations.begin()->second[i].second;
+				weakest_fitness_value = population_options.cbegin()->second[i].second;
 				weakest_i = i;
 			}
 		}
 		double current_average_fitness = 0;
-		for (pair<vector<unsigned int>, double> p : populations.begin()->second)
+		for (pair<vector<unsigned int>, double> p : population_options.cbegin()->second)
 		{
 			current_average_fitness += p.second;
 		}
 		current_average_fitness /= population_size;
-		double new_fitness_value = calculate_single_fitness_value(new_population_element, populations.begin()->second, populations.begin()->second.begin() + weakest_i);
+		double new_fitness_value = calculate_single_fitness_value(new_population_element, population_options.cbegin()->second.cbegin() + weakest_i);
 		double new_average_fitness = 0;
 		if (weakest_fitness_value < new_fitness_value)
 		{
-			populations.begin()->second.push_back(pair<vector<unsigned int>, double>(new_population_element, 0));
-			for (vector<pair<vector<unsigned int>, double>>::iterator it = populations.begin()->second.begin(); it != populations.begin()->second.end(); ++it)
+			population_options.begin()->second.push_back(pair<vector<unsigned int>, double>(new_population_element, 0));
+			for (vector<pair<vector<unsigned int>, double>>::const_iterator it = population_options.cbegin()->second.cbegin(); it != population_options.cbegin()->second.cend(); ++it)
 			{
-				new_average_fitness += calculate_single_fitness_value(it->first, populations.begin()->second, populations.begin()->second.begin() + weakest_i);
+				new_average_fitness += calculate_single_fitness_value(it->first, population_options.cbegin()->second.cbegin() + weakest_i);
 			}
-			populations.begin()->second.pop_back();
+			population_options.begin()->second.pop_back();
 			new_average_fitness /= population_size;
 			if (new_average_fitness > current_average_fitness)
 			{
-				populations.begin()->second[weakest_i].first = new_population_element;
-				populations.begin()->second[weakest_i].second = new_fitness_value;
-				for (vector<pair<vector<unsigned int>, double>>::iterator it = populations.begin()->second.begin(); it != populations.begin()->second.end(); ++it)
+				population_options.begin()->second[weakest_i].first = new_population_element;
+				population_options.begin()->second[weakest_i].second = new_fitness_value;
+				for (vector<pair<vector<unsigned int>, double>>::iterator it = population_options.begin()->second.begin(); it != population_options.begin()->second.end(); ++it)
 				{
-					it->second = calculate_single_fitness_value(it->first, populations.begin()->second, populations.begin()->second.end());
+					it->second = calculate_single_fitness_value(it->first, population_options.cbegin()->second.cend());
 				}
 				current_average_fitness = 0;
-				for (pair<vector<unsigned int>, double> p : populations.begin()->second)
+				for (pair<vector<unsigned int>, double> p : population_options.cbegin()->second)
 				{
 					current_average_fitness += p.second;
 				}
