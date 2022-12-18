@@ -16,6 +16,8 @@ namespace egal
 		unsigned int exercise_length;
 		unsigned int population_size;
 		map<unsigned int, vector<pair<vector<unsigned int>, double>>> population_options;
+		unsigned char number_of_options_goal;
+		unsigned int difficulty_difference_goal_in_options;
 
 	public:
 		population
@@ -48,7 +50,7 @@ namespace egal
 			unsigned char valid_difficulties_treshold,
 			double constraint_time_limit
 		);
-		vector<unsigned int> get_difficulty_options(void) const;
+		vector<pair<unsigned int, unsigned int>> get_difficulty_options_with_size(void) const;
 		void finalize_initial_population(unsigned int difficulty_option);
 		void enhance_population
 		(
@@ -62,6 +64,14 @@ namespace egal
 		pair<unsigned int, vector<pair<vector<unsigned int>, double>>> get_population(void) const
 		{
 			return *(population_options.cbegin());
+		}
+		unsigned char get_number_of_options_goal() const
+		{
+			return number_of_options_goal;
+		}
+		unsigned int get_difficulty_difference_goal_in_options() const
+		{
+			return difficulty_difference_goal_in_options;
 		}
 	};
 }

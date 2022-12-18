@@ -113,6 +113,8 @@ void egal::population::generate_population_options
 	time_t sequence_start_time = time(0);
 	while (true)
 	{
+		number_of_options_goal = valid_difficulties_treshold;
+		difficulty_difference_goal_in_options = difference_goal;
 		pair<vector<unsigned int>, double> p(create_single_population_element(false), 0);
 		unsigned int difficulty_sum = 0;
 		for (unsigned int i : p.first)
@@ -190,12 +192,12 @@ void egal::population::generate_population_options
 	}
 }
 
-vector<unsigned int> egal::population::get_difficulty_options(void) const
+vector<pair<unsigned int, unsigned int>> egal::population::get_difficulty_options_with_size(void) const
 {
-	vector<unsigned int> difficulty_options;
-	for(pair<unsigned int, vector<pair<vector<unsigned int>, double>>> population : population_options)
+	vector<pair<unsigned int, unsigned int>> difficulty_options;
+	for (pair<unsigned int, vector<pair<vector<unsigned int>, double>>> options : population_options)
 	{
-		difficulty_options.push_back(population.first);
+		difficulty_options.push_back(pair(options.first, options.second.size()));
 	}
 	return difficulty_options;
 }
@@ -281,7 +283,7 @@ void egal::population::enhance_population
 		if (random_value <= HMCR)
 		{
 			new_population_element = population_options.cbegin()->second[rand() % (population_size - 1)].first;
-			if (random_value <= PAR)
+			if ((double) rand() / RAND_MAX <= PAR)
 			{
 				time_t sequence_start_time = time(0);
 				while (true)

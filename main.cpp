@@ -4,6 +4,8 @@
 #include <sstream>
 #include <vector>
 #include <algorithm>
+#include <future>
+#include <chrono>
 #include "population.hpp"
 using namespace std;
 
@@ -34,6 +36,30 @@ void debug_output(const egal::population &population, string file_name)
 	output_file << "Average fitness value: " << fitness_sum / p1.second.size() << "\n";
 	output_file << "*END_DEBUG_OUTPUT*\n";
 	output_file.close();
+}
+
+void generate_population_options_with_progress_output
+(
+	egal::population &population,
+	unsigned char occurrency_multiplier,
+	unsigned char valid_difficulties_treshold,
+	double constraint_time_limit
+)
+{
+	future future_population_options = async(launch::async, &egal::population::generate_population_options, &population, occurrency_multiplier, valid_difficulties_treshold, constraint_time_limit);
+	while (future_population_options.wait_for(std::chrono::seconds(1)) == future_status::timeout)
+	{
+		cout << "Generating difficulty options...\n";
+		cout << "Current difficulty difference goal: " << population.get_difficulty_difference_goal_in_options() << "\n";
+		cout << "Current number of desired options: " << (unsigned int)population.get_number_of_options_goal() << "\n";
+		for (pair<unsigned int, unsigned int> options : population.get_difficulty_options_with_size())
+		{
+			cout << options.first << ": " << options.second << "\n";
+		}
+	}
+	cout << "Generating difficulty options finished.\n";
+	cout << "Final difficulty difference: " << population.get_difficulty_difference_goal_in_options() << "\n";
+	cout << "Final number of options: " << (unsigned int)population.get_number_of_options_goal() << "\n";
 }
 
 int main(void)
@@ -85,11 +111,13 @@ int main(void)
 
 	egal::population population(task_contents, task_difficulty_values, coexistence_preferences, exercise_length, population_size);
 	
-	population.generate_population_options(2, 3, 1);
+	//population.generate_population_options(2, 3, 1);
+	generate_population_options_with_progress_output(population, 2, 3, 1); //Same as population.generate_population_options but with progress output
 
-	for (unsigned int i : population.get_difficulty_options())
+	cout << "Please choose from the difficulty options below:\n";
+	for (pair<unsigned int, unsigned int> options : population.get_difficulty_options_with_size())
 	{
-		cout << i << "\n";
+		cout << options.first << "\n";
 	}
 	unsigned int chosen_difficulty;
 	cin >> chosen_difficulty;
