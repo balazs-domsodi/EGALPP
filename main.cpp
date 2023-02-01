@@ -65,9 +65,9 @@ void generate_population_options_with_progress_output
 int main(void)
 {
 	srand (time(0));
-	string file_name = "test";
-	//cout << "Please declare the file name (without extension) in the databank folder you would like to use:\n";
-	//cin >> file_name;
+	string file_name;
+	cout << "Please enter the name of the txt file (without extension) located in the databank folder you would like to use:\n";
+	cin >> file_name;
 	ifstream data_bank;
 	data_bank.open("databank\\" + file_name + ".txt", ios::in);
 	if (data_bank.fail())
@@ -102,12 +102,12 @@ int main(void)
 	}
 	data_bank.close();
 
-	unsigned int exercise_length = 6;
-	//cout << "Please specify the desired exercise length:\n";
-	//cin >> exercise_length;
-	unsigned int population_size = 30;
-	//cout << "Please specify the desired population size:\n";
-	//cin >> population_size;
+	unsigned int exercise_length;
+	cout << "Please specify the desired exercise length:\n";
+	cin >> exercise_length;
+	unsigned int population_size;
+	cout << "Please specify the desired population size:\n";
+	cin >> population_size;
 
 	egal::population population(task_contents, task_difficulty_values, coexistence_preferences, exercise_length, population_size);
 	
