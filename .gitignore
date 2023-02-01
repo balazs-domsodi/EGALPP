@@ -36,7 +36,6 @@
 
 # Misc files
 databank/*
-!databank/test.csv
 !databank/test.xlsm
 !databank/test.txt
 initial.txt

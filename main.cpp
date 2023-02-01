@@ -69,7 +69,7 @@ int main(void)
 	//cout << "Please declare the file name (without extension) in the databank folder you would like to use:\n";
 	//cin >> file_name;
 	ifstream data_bank;
-	data_bank.open("databank\\" + file_name + ".csv", ios::in);
+	data_bank.open("databank\\" + file_name + ".txt", ios::in);
 	if (data_bank.fail())
 	{
 		cout << "Unable to open file.\n";
@@ -87,9 +87,9 @@ int main(void)
 	while (getline(data_bank, line))
 	{
 		istringstream string_stream_line(line);
-		getline(string_stream_line, token, ',');
+		getline(string_stream_line, token, '\t');
 		task_contents.push_back(token);
-		getline(string_stream_line, token, ',');
+		getline(string_stream_line, token, '\t');
 		task_difficulty_values.push_back(stoi(token));
 		getline(string_stream_line, token);
 		istringstream string_stream_token(token);
