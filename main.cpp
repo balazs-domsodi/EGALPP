@@ -140,8 +140,8 @@ int main(void)
 
 	egal::population population(task_contents, task_difficulty_values, coexistence_preferences, exercise_length, population_size);
 	
-	//population.generate_population_options(2, 3, 1);
-	generate_population_options_with_progress_output(population, 2, 3, 1); //Same as population.generate_population_options but with progress output
+	//population.generate_population_options(2, 3, 1000);
+	generate_population_options_with_progress_output(population, 2, 3, 1000); //Same as population.generate_population_options but with progress output
 
 	cout << "Please choose from the difficulty options below:\n";
 	for (pair<unsigned int, unsigned int> options : population.get_difficulty_options_with_size())
@@ -154,7 +154,7 @@ int main(void)
 	
 	debug_output(population, "output/initial.txt");
 	
-	population.enhance_population(50, 0.0000000001, 10, 0.5, 0.2, 1);
+	population.enhance_population(50, 0.0000000001, 10, 0.5, 0.2, 1000);
 
 	debug_output(population, "output/enhanced.txt");
 	output(population, "output/tasks.txt");

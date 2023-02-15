@@ -1,5 +1,5 @@
 #include <algorithm>
-#include <time.h>
+#include <chrono>
 #include <stdexcept>
 #include "population.hpp"
 using namespace std;
@@ -110,7 +110,7 @@ void egal::population::generate_population_options
 	{
 		difference_goal = 1;
 	}
-	time_t sequence_start_time = time(0);
+	chrono::steady_clock::time_point sequence_start_time = chrono::steady_clock::now();
 	while (true)
 	{
 		number_of_options_goal = valid_difficulties_treshold;
@@ -166,7 +166,7 @@ void egal::population::generate_population_options
 			}
 			break;
 		}
-		if (difftime(time(0), sequence_start_time) >= constraint_time_limit)
+		if (chrono::duration<double, milli>(chrono::steady_clock::now() - sequence_start_time).count() >= constraint_time_limit)
 		{
 			if (valid_difficulties_treshold != 1)
 			{
@@ -186,7 +186,7 @@ void egal::population::generate_population_options
 						valid_difficulties_treshold = 1;
 					}
 				}
-				sequence_start_time = time(0);
+				sequence_start_time = chrono::steady_clock::now();
 			}
 		}
 	}
@@ -285,7 +285,7 @@ void egal::population::enhance_population
 			new_population_element = population_options.cbegin()->second[rand() % (population_size - 1)].first;
 			if ((double) rand() / RAND_MAX <= PAR)
 			{
-				time_t sequence_start_time = time(0);
+				chrono::steady_clock::time_point sequence_start_time = chrono::steady_clock::now();
 				while (true)
 				{
 					unsigned int random_new_task_index;
@@ -315,7 +315,7 @@ void egal::population::enhance_population
 								break;
 							}
 						}
-						under_PAR_time_limit = difftime(time(0), sequence_start_time) < PAR_time_limit;
+						under_PAR_time_limit = chrono::duration<double, milli>(chrono::steady_clock::now() - sequence_start_time).count() < PAR_time_limit;
 					}
 					while 
 					(
