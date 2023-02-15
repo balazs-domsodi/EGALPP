@@ -38,5 +38,4 @@
 databank/*
 !databank/test.xlsm
 !databank/test.txt
-initial.txt
-enhanced.txt
+output/*

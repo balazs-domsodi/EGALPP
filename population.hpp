@@ -65,6 +65,10 @@ namespace egal
 		{
 			return *(population_options.cbegin());
 		}
+		vector<string> get_task_contents() const
+		{
+			return task_contents;
+		}
 		unsigned char get_number_of_options_goal() const
 		{
 			return number_of_options_goal;

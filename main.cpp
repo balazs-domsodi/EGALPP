@@ -9,6 +9,35 @@
 #include "population.hpp"
 using namespace std;
 
+void output(const egal::population &population, string file_name)
+{
+	ofstream output_file(file_name);
+	pair<unsigned int, vector<pair<vector<unsigned int>, double>>> p1 = population.get_population();
+	sort
+	(
+		p1.second.begin(), p1.second.end(),
+		[](const pair<vector<unsigned int>, double> &a, const pair<vector<unsigned int>, double> &b) -> bool
+		{ 
+			return a.second < b.second;
+		}
+	);
+	for (pair<vector<unsigned int>, double> p2 : p1.second)
+	{
+		bool first = true;
+		for (unsigned int i : p2.first)
+		{
+			if (!first)
+			{
+				output_file << ", ";
+			}
+			output_file << population.get_task_contents()[i];
+			first = false;
+		}
+		output_file << "\n";
+	}
+	output_file.close();
+}
+
 void debug_output(const egal::population &population, string file_name)
 {
 	ofstream output_file(file_name);
@@ -123,11 +152,12 @@ int main(void)
 	cin >> chosen_difficulty;
 	population.finalize_initial_population(chosen_difficulty);
 	
-	debug_output(population, "initial.txt");
+	debug_output(population, "output/initial.txt");
 	
 	population.enhance_population(50, 0.0000000001, 10, 0.5, 0.2, 1);
 
-	debug_output(population, "enhanced.txt");
+	debug_output(population, "output/enhanced.txt");
+	output(population, "output/tasks.txt");
 
 	return 0;
 }
