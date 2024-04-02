@@ -35,8 +35,3 @@
 .vscode
 
 # Misc files
-databank/*
-!databank/test.xlsm
-!databank/test.txt
-output/*
-!output/.gitkeep

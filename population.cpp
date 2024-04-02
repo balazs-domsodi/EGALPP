@@ -2,11 +2,10 @@
 #include <chrono>
 #include <stdexcept>
 #include "population.hpp"
-using namespace std;
 
-vector<unsigned int> egal::population::create_single_population_element(bool check_difficulty) const
+std::vector<unsigned int> egal::population::create_single_population_element(bool check_difficulty) const
 {
-	vector<unsigned int> population_element;
+	std::vector<unsigned int> population_element;
 	while (true)
 	{
 		population_element.clear();
@@ -86,18 +85,18 @@ void egal::population::generate_population_options
 {
 	if (occurrency_multiplier == 0)
 	{
-		throw invalid_argument("generate_population_options::occurrency_multiplier = 0");
+		throw std::invalid_argument("generate_population_options::occurrency_multiplier = 0");
 	}
 	unsigned int occurrency_treshold = population_size * occurrency_multiplier;
 	if (valid_difficulties_treshold == 0)
 	{
-		throw invalid_argument("generate_population_options::valid_difficulties_treshold = 0");
+		throw std::invalid_argument("generate_population_options::valid_difficulties_treshold = 0");
 	}
 	population_options.clear();
 	unsigned int difference_goal, minimum_difficulty = 0, maximum_difficulty = 0;
 	if (valid_difficulties_treshold > 1)
 	{
-		vector<unsigned char> sorted_task_difficulty_values = task_difficulty_values;
+		std::vector<unsigned char> sorted_task_difficulty_values = task_difficulty_values;
 		sort(sorted_task_difficulty_values.begin(), sorted_task_difficulty_values.end());
 		for (unsigned int i = 0; i < exercise_length; ++i)
 		{
@@ -110,18 +109,18 @@ void egal::population::generate_population_options
 	{
 		difference_goal = 1;
 	}
-	chrono::steady_clock::time_point sequence_start_time = chrono::steady_clock::now();
+	std::chrono::steady_clock::time_point sequence_start_time = std::chrono::steady_clock::now();
 	while (true)
 	{
 		number_of_options_goal = valid_difficulties_treshold;
 		difficulty_difference_goal_in_options = difference_goal;
-		pair<vector<unsigned int>, double> p(create_single_population_element(false), 0);
+		std::pair<std::vector<unsigned int>, double> p(create_single_population_element(false), 0);
 		unsigned int difficulty_sum = 0;
 		for (unsigned int i : p.first)
 		{
 			difficulty_sum += task_difficulty_values[i];
 		}
-		map<unsigned int, vector<pair<vector<unsigned int>, double>>>::iterator it = population_options.find(difficulty_sum);
+		std::map<unsigned int, std::vector<std::pair<std::vector<unsigned int>, double>>>::iterator it = population_options.find(difficulty_sum);
 		if (it != population_options.end())
 		{
 			if (find(it->second.begin(), it->second.end(), p) == it->second.end())
@@ -131,9 +130,9 @@ void egal::population::generate_population_options
 		}
 		else
 		{
-			population_options[difficulty_sum] = vector<pair<vector<unsigned int>, double>>(1, p);
+			population_options[difficulty_sum] = std::vector<std::pair<std::vector<unsigned int>, double>>(1, p);
 		}
-		vector<unsigned int> valid_difficulty_options;
+		std::vector<unsigned int> valid_difficulty_options;
 		for (it = population_options.begin(); it != population_options.end(); ++it)
 		{
 			if (it->second.size() >= occurrency_treshold)
@@ -160,13 +159,13 @@ void egal::population::generate_population_options
 				}
 				else
 				{
-					map<unsigned int, vector<pair<vector<unsigned int>, double>>>::const_iterator tmp_it = it++;
+					std::map<unsigned int, std::vector<std::pair<std::vector<unsigned int>, double>>>::const_iterator tmp_it = it++;
 					population_options.erase(tmp_it);
 				}
 			}
 			break;
 		}
-		if (chrono::duration<double, milli>(chrono::steady_clock::now() - sequence_start_time).count() >= constraint_time_limit)
+		if (std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - sequence_start_time).count() >= constraint_time_limit)
 		{
 			if (valid_difficulties_treshold != 1)
 			{
@@ -186,26 +185,26 @@ void egal::population::generate_population_options
 						valid_difficulties_treshold = 1;
 					}
 				}
-				sequence_start_time = chrono::steady_clock::now();
+				sequence_start_time = std::chrono::steady_clock::now();
 			}
 		}
 	}
 }
 
-vector<pair<unsigned int, unsigned int>> egal::population::get_difficulty_options_with_size(void) const
+std::vector<std::pair<unsigned int, unsigned int>> egal::population::get_difficulty_options_with_size(void) const
 {
-	vector<pair<unsigned int, unsigned int>> difficulty_options;
-	for (pair<unsigned int, vector<pair<vector<unsigned int>, double>>> options : population_options)
+	std::vector<std::pair<unsigned int, unsigned int>> difficulty_options;
+	for (std::pair<unsigned int, std::vector<std::pair<std::vector<unsigned int>, double>>> options : population_options)
 	{
-		difficulty_options.push_back(pair(options.first, options.second.size()));
+		difficulty_options.push_back(std::pair<unsigned int, size_t>(options.first, options.second.size()));
 	}
 	return difficulty_options;
 }
 
 double egal::population::calculate_single_fitness_value
 (
-	const vector<unsigned int> &examined_population_element,
-	vector<pair<vector<unsigned int>, double>>::const_iterator excluded_population_element
+	const std::vector<unsigned int> &examined_population_element,
+	std::vector<std::pair<std::vector<unsigned int>, double>>::const_iterator excluded_population_element
 ) const
 {
 	double fitness_value = 0;
@@ -216,11 +215,11 @@ double egal::population::calculate_single_fitness_value
 			fitness_value += coexistence_preferences[examined_population_element[j]][examined_population_element[i]];
 		}
 	}
-	for (vector<pair<vector<unsigned int>, double>>::const_iterator it = population_options.cbegin()->second.cbegin(); it != population_options.cbegin()->second.cend(); ++it)
+	for (std::vector<std::pair<std::vector<unsigned int>, double>>::const_iterator it = population_options.cbegin()->second.cbegin(); it != population_options.cbegin()->second.cend(); ++it)
 	{
 		if (it != excluded_population_element)
 		{
-			vector<unsigned int> differences(exercise_length);
+			std::vector<unsigned int> differences(exercise_length);
 			fitness_value +=
 			set_difference
 			(
@@ -228,7 +227,7 @@ double egal::population::calculate_single_fitness_value
 				it->first.cbegin(), it->first.cend(),
 				differences.begin()
 			)
-			- differences.cbegin(); // (/(population_size/20)?
+			- differences.cbegin();
 		}
 	}
 	return fitness_value;
@@ -238,13 +237,13 @@ void egal::population::finalize_initial_population(unsigned int difficulty_optio
 {
 	if (population_options.find(difficulty_option) == population_options.cend())
 	{
-		throw invalid_argument("finalize_initial_population::difficulty_option not in map");
+		throw std::invalid_argument("finalize_initial_population::difficulty_option not in map");
 	}
-	for (map<unsigned int, vector<pair<vector<unsigned int>, double>>>::const_iterator it = population_options.cbegin(); it != population_options.cend();)
+	for (std::map<unsigned int, std::vector<std::pair<std::vector<unsigned int>, double>>>::const_iterator it = population_options.cbegin(); it != population_options.cend();)
 	{
 		if (it->first != difficulty_option)
 		{
-			map<unsigned int, vector<pair<vector<unsigned int>, double>>>::const_iterator tmp_it = it++;
+			std::map<unsigned int, std::vector<std::pair<std::vector<unsigned int>, double>>>::const_iterator tmp_it = it++;
 			population_options.erase(tmp_it);
 		}
 		else
@@ -252,7 +251,7 @@ void egal::population::finalize_initial_population(unsigned int difficulty_optio
 			++it;
 		}
 	}
-	for (vector<pair<vector<unsigned int>, double>>::iterator it = population_options.begin()->second.begin(); it != population_options.begin()->second.end(); ++it)
+	for (std::vector<std::pair<std::vector<unsigned int>, double>>::iterator it = population_options.begin()->second.begin(); it != population_options.begin()->second.end(); ++it)
 	{
 		it->second = calculate_single_fitness_value(it->first, population_options.cbegin()->second.cend());
 	}
@@ -269,7 +268,7 @@ void egal::population::enhance_population
 )
 {
 	double last_average_fitness = 0;
-	for (pair<vector<unsigned int>, double> p : population_options.cbegin()->second)
+	for (std::pair<std::vector<unsigned int>, double> p : population_options.cbegin()->second)
 	{
 		last_average_fitness += p.second;
 	}
@@ -277,7 +276,7 @@ void egal::population::enhance_population
 	unsigned int failed_epsilon_check_count = 0;
 	for (unsigned int g = 0; g <= generation_limit; ++g)
 	{
-		vector<unsigned int> new_population_element;
+		std::vector<unsigned int> new_population_element;
 		double random_value = (double) rand() / RAND_MAX;
 		bool under_PAR_time_limit = true;
 		if (random_value <= HMCR)
@@ -285,7 +284,7 @@ void egal::population::enhance_population
 			new_population_element = population_options.cbegin()->second[rand() % (population_size - 1)].first;
 			if ((double) rand() / RAND_MAX <= PAR)
 			{
-				chrono::steady_clock::time_point sequence_start_time = chrono::steady_clock::now();
+				std::chrono::steady_clock::time_point sequence_start_time = std::chrono::steady_clock::now();
 				while (true)
 				{
 					unsigned int random_new_task_index;
@@ -315,7 +314,7 @@ void egal::population::enhance_population
 								break;
 							}
 						}
-						under_PAR_time_limit = chrono::duration<double, milli>(chrono::steady_clock::now() - sequence_start_time).count() < PAR_time_limit;
+						under_PAR_time_limit = std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - sequence_start_time).count() < PAR_time_limit;
 					}
 					while 
 					(
@@ -349,7 +348,7 @@ void egal::population::enhance_population
 			}
 		}
 		double current_average_fitness = 0;
-		for (pair<vector<unsigned int>, double> p : population_options.cbegin()->second)
+		for (std::pair<std::vector<unsigned int>, double> p : population_options.cbegin()->second)
 		{
 			current_average_fitness += p.second;
 		}
@@ -358,8 +357,8 @@ void egal::population::enhance_population
 		double new_average_fitness = 0;
 		if (weakest_fitness_value < new_fitness_value)
 		{
-			population_options.begin()->second.push_back(pair<vector<unsigned int>, double>(new_population_element, 0));
-			for (vector<pair<vector<unsigned int>, double>>::const_iterator it = population_options.cbegin()->second.cbegin(); it != population_options.cbegin()->second.cend(); ++it)
+			population_options.begin()->second.push_back(std::pair<std::vector<unsigned int>, double>(new_population_element, 0));
+			for (std::vector<std::pair<std::vector<unsigned int>, double>>::const_iterator it = population_options.cbegin()->second.cbegin(); it != population_options.cbegin()->second.cend(); ++it)
 			{
 				new_average_fitness += calculate_single_fitness_value(it->first, population_options.cbegin()->second.cbegin() + weakest_i);
 			}
@@ -369,12 +368,12 @@ void egal::population::enhance_population
 			{
 				population_options.begin()->second[weakest_i].first = new_population_element;
 				population_options.begin()->second[weakest_i].second = new_fitness_value;
-				for (vector<pair<vector<unsigned int>, double>>::iterator it = population_options.begin()->second.begin(); it != population_options.begin()->second.end(); ++it)
+				for (std::vector<std::pair<std::vector<unsigned int>, double>>::iterator it = population_options.begin()->second.begin(); it != population_options.begin()->second.end(); ++it)
 				{
 					it->second = calculate_single_fitness_value(it->first, population_options.cbegin()->second.cend());
 				}
 				current_average_fitness = 0;
-				for (pair<vector<unsigned int>, double> p : population_options.cbegin()->second)
+				for (std::pair<std::vector<unsigned int>, double> p : population_options.cbegin()->second)
 				{
 					current_average_fitness += p.second;
 				}

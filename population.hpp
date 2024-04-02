@@ -3,28 +3,27 @@
 #include <string>
 #include <vector>
 #include <map>
-using namespace std;
 
 namespace egal
 {
 	class population
 	{
 	private:
-		vector<string> task_contents;
-		vector<unsigned char> task_difficulty_values;
-		vector<vector<unsigned char>> coexistence_preferences;
+		std::vector<std::string> task_contents;
+		std::vector<unsigned char> task_difficulty_values;
+		std::vector<std::vector<unsigned char>> coexistence_preferences;
 		unsigned int exercise_length;
 		unsigned int population_size;
-		map<unsigned int, vector<pair<vector<unsigned int>, double>>> population_options;
+		std::map<unsigned int, std::vector<std::pair<std::vector<unsigned int>, double>>> population_options;
 		unsigned char number_of_options_goal;
 		unsigned int difficulty_difference_goal_in_options;
 
 	public:
 		population
 		(
-			vector<string> task_contents,
-			vector<unsigned char> task_difficulty_values,
-			vector<vector<unsigned char>> coexistence_preferences,
+			std::vector<std::string> task_contents,
+			std::vector<unsigned char> task_difficulty_values,
+			std::vector<std::vector<unsigned char>> coexistence_preferences,
 			unsigned int exercise_length,
 			unsigned int population_size
 		):
@@ -36,11 +35,11 @@ namespace egal
 		{}
 
 	private:
-		vector<unsigned int> create_single_population_element(bool check_difficulty) const;
+		std::vector<unsigned int> create_single_population_element(bool check_difficulty) const;
 		double calculate_single_fitness_value
 		(
-			const vector<unsigned int> &examined_population_element,
-			vector<pair<vector<unsigned int>, double>>::const_iterator excluded_population_element
+			const std::vector<unsigned int> &examined_population_element,
+			std::vector<std::pair<std::vector<unsigned int>, double>>::const_iterator excluded_population_element
 		) const;
 
 	public:
@@ -50,7 +49,7 @@ namespace egal
 			unsigned char valid_difficulties_treshold,
 			double constraint_time_limit
 		);
-		vector<pair<unsigned int, unsigned int>> get_difficulty_options_with_size(void) const;
+		std::vector<std::pair<unsigned int, unsigned int>> get_difficulty_options_with_size(void) const;
 		void finalize_initial_population(unsigned int difficulty_option);
 		void enhance_population
 		(
@@ -61,11 +60,11 @@ namespace egal
 			double PAR,
 			double PAR_time_limit
 		);
-		pair<unsigned int, vector<pair<vector<unsigned int>, double>>> get_population(void) const
+		std::pair<unsigned int, std::vector<std::pair<std::vector<unsigned int>, double>>> get_population(void) const
 		{
 			return *(population_options.cbegin());
 		}
-		vector<string> get_task_contents() const
+		std::vector<std::string> get_task_contents() const
 		{
 			return task_contents;
 		}
